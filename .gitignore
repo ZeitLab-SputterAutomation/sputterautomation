@@ -30,4 +30,9 @@
 *.exe
 *.out
 *.app
+
 *.user
+.vs/
+.vscode
+obj/vs/*
+!obj/vs/.gitkeep
