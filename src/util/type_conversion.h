@@ -19,7 +19,7 @@ namespace util {
         inline std::optional<Out> to_type_impl(const In &t) {
             std::stringstream ss;
             ss << t;
-            Out o;
+            Out o{};
             ss >> o;
             return o;
         }
