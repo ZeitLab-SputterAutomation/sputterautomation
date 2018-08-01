@@ -36,3 +36,7 @@
 .vscode
 obj/vs/*
 !obj/vs/.gitkeep
+obj/qt/*
+!obj/qt/.gitkeep
+bin/*
+!bin/.gitkeep
