@@ -47,6 +47,8 @@ namespace util {
                       !std::is_constructible_v<std::string, Out> && !std::is_arithmetic_v<Out>, void>>
         inline std::optional<Out> to_type_impl(const In &t) {
             static_assert(sizeof(Out) == 0, "Only conversion to POD- and string-types allowed");
+
+            return std::nullopt;
         }
     }  // namespace detail
 
