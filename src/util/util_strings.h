@@ -36,10 +36,15 @@ namespace util {
         bool encountered_empty = false;
 
         while (std::getline(ss, item, delim)) {
-            if (!allow_empty && item.empty())
+            if (item.empty()) {
                 encountered_empty = true;
-            else
+
+                if (allow_empty) {
+                    *(result++) = item;
+                }
+            } else {
                 *(result++) = item;
+            }
         }
 
         return encountered_empty;
