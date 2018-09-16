@@ -10,7 +10,7 @@ namespace config {
 
         auto tokens = util::split(name, '.', false);
         if (!tokens) {
-            logging::get_log("main")->warn("Segment::get_segment(): encountered empty segment name in '" + name + "'");
+            logging::get_log("main")->error("Segment::get_segment(): encountered empty segment name in '{0}'", name);
             return nullptr;
         }
 

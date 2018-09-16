@@ -30,7 +30,7 @@ namespace config {
 
         std::ifstream input(file);
         if (!input.is_open()) {
-            m_log->error("ConfigManager::load(): unable to open config file " + file);
+            m_log->error("ConfigManager::load(): unable to open config file {0}", file);
             return false;
         }
 
@@ -40,7 +40,7 @@ namespace config {
         }
 
         if (m_configs.count(identifier) > 0) {
-            m_log->warn("ConfigManager::load(): config file with id " + identifier + " already loaded");
+            m_log->warn("ConfigManager::load(): config file with id {0} already loaded", identifier);
         }
         m_configs[identifier] = conf;
 
@@ -87,8 +87,9 @@ namespace config {
 
                 // Error: Empty segment name?
                 if (*it == ']' || it == end) {
-                    m_log->error("Error in file " + conf->m_path.string() + ":" + *util::to_string(line_number)
-                                 + ": empty segment name, got '" + line + "'");
+                    m_log->error("Error in file {0}({1}): empty segment name, got '{2}'", conf->m_path.string(),
+                                 line_number, line);
+
                     return false;
                 }
 
@@ -97,17 +98,19 @@ namespace config {
                 util::trim_all(segment_name, [](unsigned char c) { return isspace(c); });
 
                 if (segment_name.empty()) {
-                    m_log->error("Error in file " + conf->m_path.string() + ":" + *util::to_string(line_number)
-                                 + ": empty segment name, got '" + line + "'");
+                    m_log->error("Error in file {0}({1}): missing closing ']' in segment name, got '{2}'",
+                                 conf->m_path.string(), line_number, line);
+
                     return false;
                 }
 
-                // Only alpha-numeric characters and '.' are allowed for the segment names
+                // Only alphanumeric characters and '.' are allowed for the segment names
                 if (std::any_of(segment_name.begin(), segment_name.end(),
                                 [](unsigned char c) { return !(std::isalnum(c) || c == '.'); })) {
-                    m_log->error("Error in file " + conf->m_path.string() + ":" + *util::to_string(line_number)
-                                 + ":  only alphanumeric characters and '.' allowed in segment name, got '" + line
-                                 + "'");
+                    m_log->error(
+                        "Error in file {0}({1}): only alphanumeric characters and '.' allowed in segment name, got '{2}'",
+                        conf->m_path.string(), line_number, line);
+
                     return false;
                 }
 
@@ -115,15 +118,15 @@ namespace config {
                 current_segment = conf->m_root->get_segment(segment_name);
 
                 if (!current_segment) {
-                    m_log->error("Error in file " + conf->m_path.string() + ":" + *util::to_string(line_number)
-                                 + ": an error occured in get_segment()");
+                    m_log->error("Error in file {0}({1}): an error occured in get_segment()", conf->m_path.string(),
+                                 line_number);
+
                     return false;
                 }
 
                 if (!current_segment->get_comment().empty()) {
-                    m_log->warn("Warning in file " + conf->m_path.string() + ":" + *util::to_string(line_number)
-                                + ": overwriting an already set comment; old comment was '"
-                                + current_segment->get_comment() + "'");
+                    m_log->warn("Warning in file {0}({1}): overwriting an already set comment; old comment was '{2}'",
+                                conf->m_path.string(), line_number, current_segment->get_comment());
                 }
                 current_segment->set_comment(comment);
                 comment.clear();
@@ -137,19 +140,21 @@ namespace config {
             auto equal_pos = line.find('=');
 
             if (equal_pos == std::string::npos) {
-                m_log->error("Error in file " + conf->m_path.string() + ":" + *util::to_string(line_number)
-                             + ": missing equal sign, got '" + line + "'");
+                m_log->error("Error in file {0}({1}): missing equal sign, got '{2}'", conf->m_path.string(),
+                             line_number, line);
+
                 return false;
             } else if (equal_pos == line.length()) {
-                m_log->error("Error in file " + conf->m_path.string() + ":" + *util::to_string(line_number)
-                             + ": empty value, got '" + line + "'");
+                m_log->error("Error in file {0}({1}): empty value, got '{2}'", conf->m_path.string(), line_number,
+                             line);
+
                 return false;
             }
 
             std::string key = line.substr(0, equal_pos);
             if (key.empty()) {
-                m_log->error("Error in file " + conf->m_path.string() + ":" + *util::to_string(line_number)
-                             + ": empty key, got '" + line + "'");
+                m_log->error("Error in file {0}({1}): empty key, got '{2}'", conf->m_path.string(), line_number, line);
+
                 return false;
             }
             util::trim_both(key);
@@ -178,8 +183,9 @@ namespace config {
                 if (isspace(c) && !in_string) continue;
 
                 if (!(isdigit(c) || c == '.') && !in_string) {
-                    m_log->error("Error in file " + conf->m_path.string() + ":" + *util::to_string(line_number)
-                                 + ": non-numeric character outside string, got '" + line + "'");
+                    m_log->error("Error in file {0}({1}): non-numeric character outside string, got '{2}'",
+                                 conf->m_path.string(), line_number, line);
+
                     return false;
                 }
 
@@ -187,20 +193,16 @@ namespace config {
             }
 
             if (in_string) {
-                m_log->error("Error in file " + conf->m_path.string() + ":" + *util::to_string(line_number)
-                             + ": missing closing \", got '" + line + "'");
+                m_log->error("Error in file {0}({1}): missing closing \", got '{2}'", conf->m_path.string(),
+                             line_number, line);
+
                 return false;
             }
 
             if (i != line.length()) {
-                m_log->error("Error in file " + conf->m_path.string() + ":" + *util::to_string(line_number)
-                             + ": non-space character after string ended, got '" + line + "'");
-                return false;
-            }
+                m_log->error("Error in file {0}({1}): non-space character after string ended, got '{2}'",
+                             conf->m_path.string(), line_number, line);
 
-            if (value.empty()) {
-                m_log->error("Error in file " + conf->m_path.string() + ":" + *util::to_string(line_number)
-                             + ": empty value, got '" + line + "'");
                 return false;
             }
 

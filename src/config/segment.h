@@ -50,7 +50,10 @@ namespace config {
         void set(const std::string &key, const T &value, std::optional<std::string> comment = std::nullopt) {
             auto value_str = util::to_string(value);
             if (!value_str) {
-                m_log->warn("Segment::set(): unable to convert value '" + value + "' to string");
+                // TODO: this might fail, since the value couldn't be converted to string in the first place, maybe just
+                // warn that a conversion failed?
+
+                m_log->warn("Segment::set(): unable to convert value '{0}' to string", value);
                 return;
             }
 

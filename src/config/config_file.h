@@ -31,7 +31,8 @@ namespace config {
                 auto seg = m_root->get_segment(key.substr(0, dotpos), false);
 
                 if (!seg) {
-                    m_log->warn("ConfigFile::get(): encountered empty segment name in key '" + key + "'");
+                    m_log->warn("ConfigFile::get(): encountered empty segment name in key '{0}'", key);
+
                     return std::nullopt;
                 }
 
@@ -50,7 +51,8 @@ namespace config {
                 auto seg = m_root->get_segment(key.substr(0, dotpos), true);
 
                 if (!seg) {
-                    m_log->warn("ConfigFile::set(): encountered empty segment name in key '" + key + "'");
+                    m_log->warn("ConfigFile::set(): encountered empty segment name in key '{0}'", key);
+
                     return std::nullopt;
                 }
 
