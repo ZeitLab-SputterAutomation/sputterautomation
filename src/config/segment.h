@@ -4,7 +4,8 @@
 #include <memory>
 #include <mutex>
 
-#include "util/util.h"
+#include "util/type_conversion.h"
+#include "logging/logging.h"
 
 namespace config {
     enum class ValueType { string, number, date };
@@ -26,7 +27,7 @@ namespace config {
         friend class ConfigManager;
 
     public:
-        Segment() = default;
+        Segment() noexcept;
         Segment(const std::string &name) : m_name(name){};
 
         Segment(const Segment &) = delete;
@@ -50,10 +51,8 @@ namespace config {
         void set(const std::string &key, const T &value, std::optional<std::string> comment = std::nullopt) {
             auto value_str = util::to_string(value);
             if (!value_str) {
-                // TODO: this might fail, since the value couldn't be converted to string in the first place, maybe just
-                // warn that a conversion failed?
-
-                m_log->warn("Segment::set(): unable to convert value '{0}' to string", value);
+                // We cant output the value here since the conversion to string is what failed in the first place
+                m_log->warn("Segment::set(): unable to convert value to string for key '{0}'", key);
                 return;
             }
 
@@ -66,7 +65,7 @@ namespace config {
 
     private:
         // Recursively call do_serialize for all m_children
-        std::string do_serialize(const std::string &chain = "", int tablevel = 0) const;
+        std::string do_serialize(const std::string &chain = ""s, int tablevel = 0) const;
 
         struct Setting {
             std::string value;
@@ -80,6 +79,8 @@ namespace config {
 
         std::string m_comment;
         std::string m_name;
+
+        logging::log m_log;
 
         std::mutex m_mutex;
     };

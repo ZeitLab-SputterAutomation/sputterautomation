@@ -1,8 +1,11 @@
 #include "segment.h"
 
 #include "logging/logging.h"
+#include "util/util.h"
 
 namespace config {
+    Segment::Segment() noexcept : m_log{logging::get_log("main")} {}
+
     std::shared_ptr<Segment> Segment::get_segment(const std::string &name, bool create_missing) {
         std::scoped_lock<std::mutex> lock{m_mutex};
 
