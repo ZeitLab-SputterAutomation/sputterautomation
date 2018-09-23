@@ -187,6 +187,9 @@ public:
     std::string to_string() const { return "SerializableClass"; }
 };
 
+enum Enum { A = 1, B = 2 };
+enum class EnumClass { X = 10, Y = 20 };
+
 // to_string.h
 
 TEST(TypeConversion, ToString) {
@@ -235,4 +238,20 @@ TEST(TypeConversion, ToType) {
         float f = boost::lexical_cast<float>(*util::to_type<std::string>(-1.2345f));
         EXPECT_DOUBLE_EQ(f, -1.2345f);
     }
+
+    // conversion to string by using serialization method
+    SerializableClass s;
+    EXPECT_STREQ(util::to_type<std::string>(s)->c_str(), "SerializableClass");
+
+    // conversion between enum and int
+    Enum e = Enum::A;
+    EXPECT_EQ(*util::to_type<int>(e), 1);
+    e = *util::to_type<Enum>(2);
+    EXPECT_TRUE(e == Enum::B);
+
+    // conversion between enum class and int
+    EnumClass ec = EnumClass::X;
+    EXPECT_EQ(*util::to_type<int>(ec), 10);
+    ec = *util::to_type<EnumClass>(20);
+    EXPECT_TRUE(ec == EnumClass::Y);
 }
