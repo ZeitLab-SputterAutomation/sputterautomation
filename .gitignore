@@ -34,6 +34,7 @@
 # Generated MOC files
 projects/debug/moc_predefs.h
 projects/release/moc_predefs.h
+projects/GeneratedFiles/*
 
 *.user
 .vs/
