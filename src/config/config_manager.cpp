@@ -3,6 +3,7 @@
 #include <fstream>
 #include <cctype>
 
+#include "util/util.h"
 #include "util/to_string.h"
 
 namespace config {

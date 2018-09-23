@@ -39,9 +39,7 @@ namespace config {
                 return seg->get<T>(key.substr(dotpos + 1));
             }
 
-            auto x = m_root->get<T>(key);
-
-            return x;
+            return m_root->get<T>(key);
         };
 
         template <typename T>

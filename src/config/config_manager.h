@@ -16,7 +16,7 @@ namespace config {
         ~ConfigManager() { close_all(); };
 
         // Thread-safe as of C++11 (§6.7 [stmt.dcl] p4)
-        static ConfigManager &instance() {
+        static ConfigManager &instance() noexcept {
             static ConfigManager manager;
             return manager;
         }
