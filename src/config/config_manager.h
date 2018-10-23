@@ -8,11 +8,11 @@
 namespace config {
     class ConfigManager {
     private:
+        ConfigManager() noexcept : m_log{logging::get_log("main")} {}
         ConfigManager(const ConfigManager &) = delete;
         ConfigManager &operator=(const ConfigManager &) = delete;
 
     public:
-        ConfigManager() noexcept : m_log{logging::get_log("main")} {}
         ~ConfigManager() { close_all(); };
 
         // Thread-safe as of C++11 (§6.7 [stmt.dcl] p4)
