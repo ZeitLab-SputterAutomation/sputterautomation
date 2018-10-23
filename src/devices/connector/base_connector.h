@@ -16,15 +16,20 @@ public:
     BaseConnector(const BaseConnector &) = delete;
     BaseConnector &operator=(const BaseConnector &) = delete;
 
-    virtual void init(std::shared_ptr<config::Segment> settings) noexcept {};
+    virtual void init(std::shared_ptr<config::Segment> settings) {};
 
     virtual bool connect() = 0;
     virtual void disconnect() = 0;
     bool is_connected() noexcept { return m_connected; }
 
+    // Send data via the connector
     virtual void write(const QByteArray &data) = 0;
 
+    // Returns general information about the connector, i.e. connection status, all settings, etc.
+    virtual std::string info() = 0;
+
 signals:
+    // This signal gets emitted when data has been successfully received by the connector
     void data_received(QByteArray data);
 
 protected:
