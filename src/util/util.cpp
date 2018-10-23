@@ -1,7 +1,7 @@
 #include "util.h"
 
 namespace util {
-    // TODO: check the correct endian depending on the OS
+    // TODO: check the correct endianness depending on the OS
     uint16_t convertEndian(uint16_t data) {
         uint16_t result = 0x0;
 
