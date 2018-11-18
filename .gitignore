@@ -45,3 +45,5 @@ obj/qt/*
 !obj/qt/.gitkeep
 bin/*
 !bin/.gitkeep
+
+deps/libnodave-0.8.5
