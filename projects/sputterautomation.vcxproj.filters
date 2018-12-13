@@ -18,7 +18,9 @@
       <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
     <Filter Include="Header Files">
-      <UniqueIdentifier>{5f2feef9-45a4-423b-a871-bbb8468f0ae5}</UniqueIdentifier>
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+      <ParseFiles>true</ParseFiles>
     </Filter>
     <Filter Include="Header Files\util">
       <UniqueIdentifier>{eff8d7a4-ce18-4ef5-8de3-53020efa9648}</UniqueIdentifier>
@@ -38,11 +40,48 @@
     <Filter Include="Header Files\logging">
       <UniqueIdentifier>{b39e9eba-9a2e-467a-85ec-0ec6d59daf88}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\devices">
+      <UniqueIdentifier>{20613a8d-618d-4ac1-99d0-5099a654ae8d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\devices">
+      <UniqueIdentifier>{8f7a34db-1f46-425d-8042-fe73d7761efa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\devices\connector">
+      <UniqueIdentifier>{2bf456ee-3cd9-451d-9791-ec5b48162312}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\devices\connector">
+      <UniqueIdentifier>{86aa5e88-ee70-40cf-91ee-3d1cb7473ac2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ui">
+      <UniqueIdentifier>{0d2b483e-a414-41d8-b4c4-d75e808eb2a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Form Files">
+      <UniqueIdentifier>{99349809-55BA-4b9d-BF79-8FDBB0286EB3}</UniqueIdentifier>
+      <Extensions>ui</Extensions>
+      <ParseFiles>true</ParseFiles>
+    </Filter>
+    <Filter Include="Header Files\ui">
+      <UniqueIdentifier>{632b84bf-0447-4689-937b-8fadb5abc1a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}</UniqueIdentifier>
+      <Extensions>qrc;*</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+    <Filter Include="Source Files\ui\widgets">
+      <UniqueIdentifier>{1043991d-e062-4d4c-b014-4ba80b848738}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ui\widgets">
+      <UniqueIdentifier>{f69dc803-58c7-45ce-9bf7-7fb488780e20}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\devices\plc">
+      <UniqueIdentifier>{5e3934ac-3327-430f-97b5-61ada0546a4f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\devices\plc">
+      <UniqueIdentifier>{e2f79067-c194-4ebb-ada1-819a355bdae1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\config\config.cpp">
       <Filter>Source Files\config</Filter>
     </ClCompile>
@@ -63,6 +102,45 @@
     </ClCompile>
     <ClCompile Include="..\src\logging\logging.cpp">
       <Filter>Source Files\logging</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\devices\connector\serial_connector.cpp">
+      <Filter>Source Files\devices\connector</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\devices\cesar_generator.cpp">
+      <Filter>Source Files\devices</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\devices\hofi_switch.cpp">
+      <Filter>Source Files\devices</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\devices\kjl_generator.cpp">
+      <Filter>Source Files\devices</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\util\base64.cpp">
+      <Filter>Source Files\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ui\mainwindow.cpp">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ui\widgets\busyindicator.cpp">
+      <Filter>Source Files\ui\widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ui\widgets\ledindicator.cpp">
+      <Filter>Source Files\ui\widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ui\widgets\uvwarning.cpp">
+      <Filter>Source Files\ui\widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\devices\plc\s7.cpp">
+      <Filter>Source Files\devices\plc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\devices\connector\ethernet_connector.cpp">
+      <Filter>Source Files\devices\connector</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\devices\device.cpp">
+      <Filter>Source Files\devices</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -107,5 +185,80 @@
     <ClInclude Include="..\src\util\type_conversion.h">
       <Filter>Header Files\util</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\devices\connector\connector.h">
+      <Filter>Header Files\devices\connector</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\util\base64.h">
+      <Filter>Header Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\devices\plc\db.h">
+      <Filter>Header Files\devices\plc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\devices\plc\state.h">
+      <Filter>Header Files\devices\plc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\devices\plc\nodave_wrapper.h">
+      <Filter>Header Files\devices\plc</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="..\src\devices\connector\serial_connector.h">
+      <Filter>Header Files\devices\connector</Filter>
+    </QtMoc>
+    <QtMoc Include="..\src\devices\connector\base_connector.h">
+      <Filter>Header Files\devices\connector</Filter>
+    </QtMoc>
+    <QtMoc Include="..\src\ui\mainwindow.h">
+      <Filter>Header Files\ui</Filter>
+    </QtMoc>
+    <QtMoc Include="..\src\ui\widgets\busyindicator.h">
+      <Filter>Header Files\ui\widgets</Filter>
+    </QtMoc>
+    <QtMoc Include="..\src\ui\widgets\ledindicator.h">
+      <Filter>Header Files\ui\widgets</Filter>
+    </QtMoc>
+    <QtMoc Include="..\src\ui\widgets\uvwarning.h">
+      <Filter>Header Files\ui\widgets</Filter>
+    </QtMoc>
+    <QtMoc Include="..\src\devices\plc\s7.h">
+      <Filter>Header Files\devices\plc</Filter>
+    </QtMoc>
+    <QtMoc Include="..\src\devices\connector\ethernet_connector.h">
+      <Filter>Header Files\devices\connector</Filter>
+    </QtMoc>
+    <QtMoc Include="..\src\devices\hofi_switch.h">
+      <Filter>Header Files\devices</Filter>
+    </QtMoc>
+    <QtMoc Include="..\src\devices\device.h">
+      <Filter>Header Files\devices</Filter>
+    </QtMoc>
+    <QtMoc Include="..\src\devices\kjl_generator.h">
+      <Filter>Header Files\devices</Filter>
+    </QtMoc>
+    <QtMoc Include="..\src\devices\rf_generator.h">
+      <Filter>Header Files\devices</Filter>
+    </QtMoc>
+    <QtMoc Include="..\src\devices\rf_switch.h">
+      <Filter>Header Files\devices</Filter>
+    </QtMoc>
+    <QtMoc Include="..\src\devices\cesar_generator.h">
+      <Filter>Header Files\devices</Filter>
+    </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="..\src\ui\mainwindow.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="sputterautomation.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="..\resources\resources.qrc">
+      <Filter>Resource Files</Filter>
+    </QtRcc>
   </ItemGroup>
 </Project>

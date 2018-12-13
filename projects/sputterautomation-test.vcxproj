@@ -90,10 +90,9 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <AssemblerListingLocation>debug\</AssemblerListingLocation>
-      <AdditionalIncludeDirectories>..\src;..\deps\googletest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\src;..\deps\googletest\include;$(QTDIR)\include\;$(QTDIR)\include\QtCore;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OmitFramePointers>false</OmitFramePointers>
       <PreprocessorDefinitions>WIN32;GTEST_LANG_CXX11=1;GTEST_HAS_TR1_TUPLE=0;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <MinimalRebuild>true</MinimalRebuild>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)\sputterautomation_test_d.exe</OutputFile>
