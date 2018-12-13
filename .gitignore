@@ -46,6 +46,6 @@ obj/qt/*
 bin/*
 !bin/.gitkeep
 
-deps/libnodave-0.8.5
+deps/libnodave-0.8.5/*
 !deps/libnodave-0.8.5/build_libnodave.bat
 projects/debug/moc_predefs.h.cbt
