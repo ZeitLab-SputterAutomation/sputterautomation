@@ -82,8 +82,7 @@ namespace util {
         }
 
         // no conversion possible for types other that string-, arithmetic- and enum-types
-        template <typename Out, typename In,
-                  typename = typename std::enable_if_t<!enable_conversion<Out, In>::value, void>>
+        template <typename Out, typename In, typename = typename std::enable_if_t<!enable_conversion<Out, In>::value, void>>
         inline std::optional<Out> to_type_impl(const In &t) {
             static_assert(sizeof(Out) == 0, "Only conversion to and from POD-, enum- and string-types possible");
 

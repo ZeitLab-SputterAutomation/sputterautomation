@@ -13,22 +13,19 @@ namespace util {
 
         // built-in conversion for POD types
         template <class T>
-        inline auto to_string_impl(const T &t, to_string_choice<0>)
-            -> decltype(std::to_string(t), std::optional<std::string>()) {
+        inline auto to_string_impl(const T &t, to_string_choice<0>) -> decltype(std::to_string(t), std::optional<std::string>()) {
             return std::to_string(t);
         }
 
         // direct "conversion" of narrow-string-like types
         template <class T>
-        inline auto to_string_impl(const T &t, to_string_choice<1>)
-            -> decltype(std::string(t), std::optional<std::string>()) {
+        inline auto to_string_impl(const T &t, to_string_choice<1>) -> decltype(std::string(t), std::optional<std::string>()) {
             return std::string(t);
         }
 
         // using the member function 'std::string to_string() const'
         template <class T>
-        inline auto to_string_impl(const T &t, to_string_choice<2>)
-            -> decltype(t.to_string(), std::optional<std::string>()) {
+        inline auto to_string_impl(const T &t, to_string_choice<2>) -> decltype(t.to_string(), std::optional<std::string>()) {
             return t.to_string();
         }
 
