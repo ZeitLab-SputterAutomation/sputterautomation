@@ -9,6 +9,7 @@ namespace config {
     class ConfigManager {
     private:
         ConfigManager() noexcept : m_log{logging::get_log("main")} {}
+
         ConfigManager(const ConfigManager &) = delete;
         ConfigManager &operator=(const ConfigManager &) = delete;
 
@@ -25,6 +26,10 @@ namespace config {
         std::shared_ptr<ConfigFile> get_config(const std::string &name);
 
         void close_all();
+
+        // TODO: implement
+        //void create_config();
+        //void save_config();
 
         bool load(const std::string &file, const std::string &identifier);
 

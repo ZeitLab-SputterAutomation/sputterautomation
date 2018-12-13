@@ -48,6 +48,9 @@ namespace config {
         return true;
     }
 
+    // TODO: support "a.b = 5" in file, so that segment a setting b is 5
+    // FIXME: multiline comments should not be trimmed
+    // FIXME: ignore trailing comments after key-value-pairs
     bool ConfigManager::parse(std::istream &stream, std::shared_ptr<ConfigFile> conf) {
         int line_number = 0;
         std::string line;

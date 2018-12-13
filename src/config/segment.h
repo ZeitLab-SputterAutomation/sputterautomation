@@ -27,12 +27,13 @@ namespace config {
         friend class ConfigManager;
 
     public:
-        Segment() noexcept;
+        Segment() = default;
         Segment(const std::string &name) : m_name(name){};
 
         Segment(const Segment &) = delete;
         Segment &operator=(const Segment &) = delete;
 
+        std::shared_ptr<const Segment> get_segment(const std::string &name) const;
         std::shared_ptr<Segment> get_segment(const std::string &name, bool create_missing = true);
         std::string serialize() const { return do_serialize(); }
 
@@ -41,6 +42,22 @@ namespace config {
 
         template <typename T>
         std::optional<T> get(const std::string &key) const {
+            if (key.empty()) {
+                logging::get_log("main")->warn("Segment::set(): key is empty");
+                return std::nullopt;
+            }
+
+            // If a subsegment is meant, load it and get its setting
+            if (auto lastpos = key.find_last_of('.'); lastpos != std::string::npos) {
+                auto nkey = key.substr(lastpos + 1);
+                if (nkey.empty()) {
+                    logging::get_log("main")->warn("Segment::set(): last key in chain is empty, got '{0}'", key);
+                    return std::nullopt;
+                }
+
+                return get_segment(key.substr(0, lastpos))->get<T>(nkey);
+            }
+
             auto setting = m_settings.find(key);
             if (setting == m_settings.end()) return std::nullopt;
 
@@ -49,10 +66,27 @@ namespace config {
 
         template <typename T>
         void set(const std::string &key, const T &value, std::optional<std::string> comment = std::nullopt) {
+            if (key.empty()) {
+                logging::get_log("main")->warn("Segment::set(): key is empty");
+                return;
+            }
+
             auto value_str = util::to_string(value);
             if (!value_str) {
                 // We cant output the value here since the conversion to string is what failed in the first place
-                m_log->warn("Segment::set(): unable to convert value to string for key '{0}'", key);
+                logging::get_log("main")->warn("Segment::set(): unable to convert value to string for key '{0}'", key);
+                return;
+            }
+
+            // If a subsegment is meant, load it and set its setting
+            if (auto lastpos = key.find_last_of('.'); lastpos != std::string::npos) {
+                auto nkey = key.substr(lastpos + 1);
+                if (nkey.empty()) {
+                    logging::get_log("main")->warn("Segment::set(): last key in chain is empty, got '{0}'", key);
+                    return;
+                }
+
+                get_segment(key.substr(0, lastpos), true)->set<T>(nkey, value, comment);
                 return;
             }
 
@@ -80,8 +114,6 @@ namespace config {
         std::string m_comment;
         std::string m_name;
 
-        logging::log m_log;
-
-        std::mutex m_mutex;
+        mutable std::mutex m_mutex;
     };
 }  // namespace config

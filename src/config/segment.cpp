@@ -4,7 +4,30 @@
 #include "util/util.h"
 
 namespace config {
-    Segment::Segment() noexcept : m_log{logging::get_log("main")} {}
+    std::shared_ptr<const Segment> Segment::get_segment(const std::string &name) const {
+        std::scoped_lock<std::mutex> lock{m_mutex};
+
+        if (name.empty()) return shared_from_this();
+
+        auto tokens = util::split(name, '.', false);
+        if (!tokens) {
+            logging::get_log("main")->error("Segment::get_segment(): encountered empty segment name in '{0}'", name);
+            return nullptr;
+        }
+
+        std::shared_ptr<const Segment> current_segment = shared_from_this();
+        for (const auto &seg : *tokens) {
+            if (current_segment->m_children.count(seg) < 1) {
+                // We can not create new nodes
+                return nullptr;
+            }
+
+            // Advance down the tree
+            current_segment = current_segment->m_children.at(seg);
+        }
+
+        return current_segment;
+    }
 
     std::shared_ptr<Segment> Segment::get_segment(const std::string &name, bool create_missing) {
         std::scoped_lock<std::mutex> lock{m_mutex};
@@ -102,7 +125,7 @@ namespace config {
         }
 
         // Remove the last newline
-        if(!s.empty()) s.pop_back();
+        if (!s.empty()) s.pop_back();
 
         return s;
     }

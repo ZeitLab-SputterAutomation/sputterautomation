@@ -7,6 +7,7 @@
 #include "logging/logging.h"
 #include "segment.h"
 
+// TODO: we don't need ConfigFile anymore, replace it directly with Segment
 namespace config {
     class ConfigManager;
     class ConfigFile {
@@ -51,7 +52,7 @@ namespace config {
                 if (!seg) {
                     m_log->warn("ConfigFile::set(): encountered empty segment name in key '{0}'", key);
 
-                    return std::nullopt;
+                    return;
                 }
 
                 seg->set<T>(key.substr(dotpos + 1), value, comment);
@@ -70,6 +71,11 @@ namespace config {
         void set_comment(const std::string &comment) { m_comment = comment; };
 
         void save();
+
+        // returns the underlying segment
+        std::shared_ptr<Segment> get_segment() { 
+            return m_root;
+        }
 
     private:
         std::filesystem::path m_path;
