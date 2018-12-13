@@ -8,7 +8,7 @@ AlwaysBreakAfterReturnType: None
 AlwaysBreakTemplateDeclarations: 'true'
 BreakBeforeBinaryOperators: NonAssignment
 BreakStringLiterals: 'false'
-ColumnLimit: 120
+ColumnLimit: 130
 ConstructorInitializerAllOnOneLineOrOnePerLine: 'true'
 ConstructorInitializerIndentWidth: '4'
 ContinuationIndentWidth: '4'
