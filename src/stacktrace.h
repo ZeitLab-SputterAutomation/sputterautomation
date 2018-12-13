@@ -2,6 +2,8 @@
 
 #include <boost/stacktrace.hpp>
 #include <boost/exception/all.hpp>
+// stacktrace.hpp sadly includes Windows.h
+#undef interface
 
 using traced = boost::error_info<struct tag_stacktrace, boost::stacktrace::stacktrace>;
 
