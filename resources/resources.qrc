@@ -1,0 +1,16 @@
+<RCC>
+    <qresource prefix="/ui">
+        <file>images/led_darkgreen.png</file>
+        <file>images/led_green.png</file>
+        <file>images/sputter_status.png</file>
+        <file>images/uvlight_symbol.png</file>
+        <file>images/led_blue.png</file>
+        <file>images/led_darkred.png</file>
+        <file>images/led_off.png</file>
+        <file>images/led_orange.png</file>
+        <file>images/led_red.png</file>
+        <file>images/busy_indicator.gif</file>
+        <file>images/connection_status.png</file>
+        <file>images/always_true_states.png</file>
+    </qresource>
+</RCC>
