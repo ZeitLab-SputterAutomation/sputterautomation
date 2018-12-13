@@ -2,7 +2,7 @@
 
 namespace util {
     // TODO: check the correct endianness depending on the OS
-    uint16_t convertEndian(uint16_t data) {
+    uint16_t convert_endian(uint16_t data) {
         uint16_t result = 0x0;
 
         result += ((data >> 8) & 0xFFu);
@@ -11,7 +11,7 @@ namespace util {
         return result;
     }
 
-    uint32_t convertEndian(uint32_t data) {
+    uint32_t convert_endian(uint32_t data) {
         uint32_t result = 0x0;
 
         result += ((data >> 24) & 0xFFul);
@@ -22,7 +22,7 @@ namespace util {
         return result;
     }
 
-    uint64_t convertEndian(uint64_t data) {
+    uint64_t convert_endian(uint64_t data) {
         uint64_t result = 0x0;
 
         result += ((data >> 56) & 0xFFull);
