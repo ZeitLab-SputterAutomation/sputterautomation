@@ -16,17 +16,21 @@ public:
     BaseConnector(const BaseConnector &) = delete;
     BaseConnector &operator=(const BaseConnector &) = delete;
 
-    virtual void init(std::shared_ptr<config::Segment> settings) {};
+    virtual void init(std::shared_ptr<config::Segment> settings){};
 
+    // Try to establish a connection. Returns true on success and false otherwise.
     virtual bool connect() = 0;
     virtual void disconnect() = 0;
     bool is_connected() noexcept { return m_connected; }
 
-    // Send data via the connector
+    // Writes the given data to the connection, discarding it silently when the connection has not been established yet.
     virtual void write(const QByteArray &data) = 0;
 
     // Returns general information about the connector, i.e. connection status, all settings, etc.
     virtual std::string info() = 0;
+
+    // Move the underlying connection to the given thread (if applicable)
+    virtual void move_to_thread(QThread * /*thread*/){};
 
 signals:
     // This signal gets emitted when data has been successfully received by the connector

@@ -83,9 +83,11 @@ bool SerialConnector::connect() {
 
         logging::get_log("main")->error("SerialPort: QSerialPort::open failed with error '{0}'", error_string);
 
+        m_connected = false;
         return false;
     }
 
+    m_connected = true;
     return true;
 }
 
@@ -105,14 +107,15 @@ void SerialConnector::write(const QByteArray &data) {
 }
 
 std::string SerialConnector::info() {
+    std::string ret = "SerialConnector:";
     if (!m_settings.all_set) {
-        return "SerialConnector: This connector is in an error-state: not all settings "s
-               "could be changed in the last call to init"s;
+        ret += " (not all settings changed in the last call to init)";
     }
 
     // clang-format off
     return fmt::format(
-        "SerialConnector:\n\tportname: {1}\n\tdata bits: {2}\n\tparity: {3}\n\tstop bits: {4}\n\tflow control: {5}",
+        "{0}\n\tportname: '{1}'\n\tdata bits: {2}\n\tparity: {3}\n\tstop bits: {4}\n\tflow control: {5}",
+        ret,
         m_settings.portname,
         util::qt_enum_to_string(m_settings.databits),
         util::qt_enum_to_string(m_settings.parity),
@@ -120,6 +123,8 @@ std::string SerialConnector::info() {
         util::qt_enum_to_string(m_settings.flowcontrol));
     // clang-format on
 }
+
+void SerialConnector::move_to_thread(QThread *thread) { m_serial_port.moveToThread(thread); }
 
 void SerialConnector::handle_ready_read() {
     QByteArray data = m_serial_port.readAll();

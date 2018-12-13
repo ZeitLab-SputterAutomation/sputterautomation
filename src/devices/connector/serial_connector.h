@@ -13,14 +13,23 @@ public:
     SerialConnector() noexcept;
     ~SerialConnector();
 
+    SerialConnector(const SerialConnector &) = delete;
+    SerialConnector &operator=(const SerialConnector &) = delete;
+
     void init(std::shared_ptr<config::Segment> settings) override;
 
+    // Try to establish a connection. Returns true on success and false otherwise.
     bool connect() override;
     void disconnect() override;
 
+    // Writes the given data to the connection, discarding it silently when the connection has not been established yet.
     void write(const QByteArray &data) override;
 
+    // Returns general information about the connector, i.e. connection status, all settings, etc.
     std::string info() override;
+
+    // Move the underlying connection to the given thread.
+    void move_to_thread(QThread *thread) override;
 
 private:
     void handle_ready_read();
