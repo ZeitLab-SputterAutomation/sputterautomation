@@ -34,8 +34,16 @@ void CesarGenerator::init(std::shared_ptr<config::Segment> settings) {
 }
 
 void CesarGenerator::update() {
-    std::scoped_lock<std::mutex> lock(m_data_mutex);
-    fmt::print("{}\n", m_command_queue.size());
+    if (m_generator_parameters.external_feedback != -1 && m_generator_parameters.forward_power != -1
+        && m_generator_parameters.reflected_power != -1 && m_generator_parameters.setpoint != -1
+        && m_generator_parameters.load_cap_position != -1 && m_generator_parameters.tune_cap_position != -1) {
+        std::scoped_lock<std::mutex> lock(m_parameter_mutex);
+
+        emit update_parameters();
+
+        // Reset all parameters to indicate we still need to save them
+        m_generator_parameters = {-1, -1, -1, -1, -1, -1};
+    }
 }
 
 void CesarGenerator::set_control_mode(ControlMode mode) {
@@ -284,6 +292,7 @@ void CesarGenerator::handle_reply(const Packet &packet) {
             return;
         }
 
+        std::scoped_lock<std::mutex> lock(m_parameter_mutex);
         m_generator_parameters.setpoint = (packet.data[1] << 8) | packet.data[0];
 
         logging::get_log("main")->debug("CesarGenerator: ReportSetPointAndRegulationMode returned {0}",
@@ -297,6 +306,7 @@ void CesarGenerator::handle_reply(const Packet &packet) {
             return;
         }
 
+        std::scoped_lock<std::mutex> lock(m_parameter_mutex);
         m_generator_parameters.forward_power = (packet.data[1] << 8) | packet.data[0];
 
         logging::get_log("main")->debug("CesarGenerator: ReportForwardPower returned {0}", m_generator_parameters.forward_power);
@@ -309,6 +319,7 @@ void CesarGenerator::handle_reply(const Packet &packet) {
             return;
         }
 
+        std::scoped_lock<std::mutex> lock(m_parameter_mutex);
         m_generator_parameters.reflected_power = (packet.data[1] << 8) | packet.data[0];
 
         logging::get_log("main")->debug("CesarGenerator: ReportReflectedPower returned {0}",
@@ -324,6 +335,7 @@ void CesarGenerator::handle_reply(const Packet &packet) {
             return;
         }
 
+        std::scoped_lock<std::mutex> lock(m_parameter_mutex);
         m_generator_parameters.external_feedback = (packet.data[1] << 8) | packet.data[0];
 
         logging::get_log("main")->debug("CesarGenerator: ReportExternalFeedback returned {0}",
@@ -341,6 +353,7 @@ void CesarGenerator::handle_reply(const Packet &packet) {
             return;
         }
 
+        std::scoped_lock<std::mutex> lock(m_parameter_mutex);
         m_generator_parameters.load_cap_position = ((packet.data[1] << 8) | packet.data[0]) / 10;
         m_generator_parameters.tune_cap_position = ((packet.data[3] << 8) | packet.data[2]) / 10;
 
