@@ -1,6 +1,8 @@
 #include "device.h"
 
-Device::Device(std::unique_ptr<BaseConnector> &&connector) : m_connector{std::move(connector)} {};
+Device::Device() noexcept : m_id{get_id()} {};
+
+Device::Device(std::unique_ptr<BaseConnector> &&connector) : m_connector{std::move(connector)}, m_id{get_id()} {};
 
 void Device::set_connector(std::unique_ptr<BaseConnector> &&connector) {
     if (m_connector != nullptr) {
@@ -45,4 +47,9 @@ void Device::send(const QByteArray &data) {
     }
 
     m_connector->write(data);
+}
+
+device_id Device::get_id() {
+    static std::atomic<device_id> id{0};
+    return ++id;
 }

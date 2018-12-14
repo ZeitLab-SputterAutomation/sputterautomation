@@ -32,5 +32,5 @@ public:
     virtual void query_reflected_power(){};
 
 signals:
-    void update_parameters();
+    void update_parameters(device_id id);
 };

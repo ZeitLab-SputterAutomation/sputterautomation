@@ -6,10 +6,12 @@
 #include "config/segment.h"
 #include "util/util.h"
 
+using device_id = uint8_t;
+
 class Device : public QObject {
     Q_OBJECT
 public:
-    Device() = default;
+    Device() noexcept;
     Device(std::unique_ptr<BaseConnector> &&connector);
     virtual ~Device() = default;
 
@@ -49,10 +51,16 @@ public:
     virtual void set_control_mode(ControlMode /*mode*/) {}
 
 signals:
-    void connection_status_changed();
+    void connection_status_changed(device_id id);
 
 protected:
     BaseConnector *get_connector() { return m_connector.get(); }
 
+    const device_id m_id;
+
     std::unique_ptr<BaseConnector> m_connector;
+
+private:
+    static device_id get_id();
 };
+

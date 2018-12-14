@@ -39,7 +39,7 @@ void CesarGenerator::update() {
         && m_generator_parameters.load_cap_position != -1 && m_generator_parameters.tune_cap_position != -1) {
         std::scoped_lock<std::mutex> lock(m_parameter_mutex);
 
-        emit update_parameters();
+        emit update_parameters(m_id);
 
         // Reset all parameters to indicate we still need to save them
         m_generator_parameters = {-1, -1, -1, -1, -1, -1};
