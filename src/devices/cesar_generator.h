@@ -41,7 +41,7 @@ public:
 private:
     // Queue a command to be sent to the device. If no other commands are queued it will be sent immediately. Otherwise
     // the next command is sent when a valid reply was received.
-    void queue_command(const QByteArray &command);
+    void queue_command(QByteArray command);
     /*
     // Since QByteArray does not provide a constructor taking an initializer_list, we use this little templated
     // queue_command to simplify the construction of packages.
@@ -85,6 +85,9 @@ private:
 
     std::mutex m_data_mutex;
     QByteArray m_in_buffer;
+
+    // Address of the generator (called "busaddress" in the old software)
+    int m_address = 0;
 
     int m_send_retries = 0;
     std::mutex m_command_mutex;

@@ -6,6 +6,8 @@ CesarGenerator::CesarGenerator(std::unique_ptr<BaseConnector> &&connector) : RFG
     if (m_connector) {
         QObject::connect(m_connector.get(), &BaseConnector::data_received, this, &CesarGenerator::handle_data_received);
     }
+
+    logging::get_log("main")->debug("CesarGenerator: device #{0}", m_id);
 }
 
 void CesarGenerator::set_connector(std::unique_ptr<BaseConnector> &&connector) {
@@ -17,6 +19,8 @@ void CesarGenerator::set_connector(std::unique_ptr<BaseConnector> &&connector) {
 }
 
 void CesarGenerator::init(std::shared_ptr<config::Segment> settings) {
+    logging::get_log("main")->debug("CesarGenerator is Device #{0}", m_id);
+
     if (!m_connector) {
         logging::get_log("main")->warn(
             "CesarGenerator: init called but no connector was set up. Call set_connector with a valid connector first.");
@@ -26,10 +30,14 @@ void CesarGenerator::init(std::shared_ptr<config::Segment> settings) {
     m_connector->init(settings);
     if (!m_connector->connect()) {
         logging::get_log("main")->error(
-            "CesarGenerator: an error occured while trying to connect to the generator. Connector info:\n{0}",
+            "CesarGenerator: an error occured while trying to connect to the generator. Connector info:\n  {0}",
             m_connector->info());
     } else {
-        logging::get_log("main")->debug("CesarGenerator: connected. Connector info:\n{0}", m_connector->info());
+        logging::get_log("main")->debug("CesarGenerator: connected. Connector info:\n  {0}", m_connector->info());
+    }
+
+    if (auto address = settings->get<int>("address")) {
+        m_address = *address;
     }
 }
 
@@ -60,13 +68,9 @@ void CesarGenerator::set_control_mode(ControlMode mode) {
     queue_command(Commands::SelectActiveControlMode, mode_id);
 }
 
-void CesarGenerator::output_on() { 
-    queue_command(Commands::OutputOn); 
-}
+void CesarGenerator::output_on() { queue_command(Commands::OutputOn); }
 
-void CesarGenerator::output_off() { 
-    queue_command(Commands::OutputOff); 
-}
+void CesarGenerator::output_off() { queue_command(Commands::OutputOff); }
 
 void CesarGenerator::set_target_power(int power) {
     if (power < 0) {
@@ -114,32 +118,41 @@ void CesarGenerator::set_matchnetwork_mode(MatchnetworkMode mode) {
     queue_command(Commands::SetMatchNetworkControl, mode_id);
 }
 
-void CesarGenerator::query_capacitor_positions() { 
-    queue_command(Commands::ReportCapacitorPositions);
-}
+void CesarGenerator::query_capacitor_positions() { queue_command(Commands::ReportCapacitorPositions); }
 
-void CesarGenerator::query_external_feedback() { 
-    queue_command(Commands::ReportExternalFeedback); 
-}
+void CesarGenerator::query_external_feedback() { queue_command(Commands::ReportExternalFeedback); }
 
-void CesarGenerator::query_forward_power() { 
-    queue_command(Commands::ReportForwardPower); 
-}
+void CesarGenerator::query_forward_power() { queue_command(Commands::ReportForwardPower); }
 
-void CesarGenerator::query_reflected_power() { 
-    queue_command(Commands::ReportReflectedPower); 
-}
+void CesarGenerator::query_reflected_power() { queue_command(Commands::ReportReflectedPower); }
 
-void CesarGenerator::queue_command(const QByteArray &command) {
+void CesarGenerator::queue_command(QByteArray command) {
     if (!m_connector) {
-        logging::get_log("main")->warn("CesarGenerator: queue_command was called but no connector was set up, command was '{0}'", command.toHex().toStdString());
+        logging::get_log("main")->warn("CesarGenerator: queue_command was called but no connector was set up, command was '{0}'",
+                                       command.toHex().toStdString());
         return;
     }
 
     std::scoped_lock<std::mutex> lock(m_command_mutex);
 
     if (m_command_queue.empty()) {
-        m_connector->write(command);
+        // Build the outgoing packet
+        int data_len = command.length() - 1;
+
+        if (data_len > 6) {
+            command.insert(1, static_cast<char>(data_len));
+            data_len = 7;
+        }
+        command.prepend((m_address << 3) & 0xF8 | static_cast<char>(data_len));
+        command.append('\0');
+
+        // Checksum
+        data_len = command.length();
+        for (int i = 0; i < data_len; i++) {
+            command[data_len - 1] = command[data_len - 1] ^ command[i];
+        }
+
+        send(command);
     }
 
     m_command_queue.push_back(command);
@@ -147,7 +160,7 @@ void CesarGenerator::queue_command(const QByteArray &command) {
 
 bool CesarGenerator::write_command() {
     if (!m_command_queue.empty()) {
-        m_connector->write(m_command_queue.front());
+        send(m_command_queue.front());
         return true;
     }
     return false;
@@ -156,6 +169,8 @@ bool CesarGenerator::write_command() {
 void CesarGenerator::handle_data_received(const QByteArray &data) {
     // A buffer for incoming messages so we don't keep the mutex locked for actual handling of the packets
     std::vector<Packet> packets;
+
+    logging::get_log("main")->debug("CesarGenerator: handle_data_received got {0} (hex)", data.toHex().toStdString());
 
     {
         std::scoped_lock<std::mutex> data_lock(m_data_mutex);
@@ -241,10 +256,10 @@ void CesarGenerator::handle_data_received(const QByteArray &data) {
             }
 
             if (checksum == 0) {
-                m_connector->write(QByteArray(1, ACK));
+                send(QByteArray(1, ACK));
                 packets.push_back({header, m_in_buffer.mid(i + offset - 1, datalength + 1)});
             } else {
-                m_connector->write(QByteArray(1, NACK));
+                send(QByteArray(1, NACK));
                 logging::get_log("main")->warn("CesarGenerator: received corrupted packet with content\n\t{0} (hex)",
                                                m_in_buffer.mid(i, datalength + 1).toHex().toStdString());
             }
