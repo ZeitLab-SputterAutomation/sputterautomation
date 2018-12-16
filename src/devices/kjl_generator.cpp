@@ -79,8 +79,8 @@ void KJLGenerator::set_tune_capacitor_position(int position) {
 }
 
 void KJLGenerator::query_capacitor_positions() {
-    send(QByteArray::fromStdString("LPS<cr>"));  // load capacitor
-    send(QByteArray::fromStdString("TPS<cr>"));  // tune capacitor
+    send(QByteArray::fromStdString("LPS\r"));  // load capacitor
+    send(QByteArray::fromStdString("TPS\r"));  // tune capacitor
 }
 
 void KJLGenerator::query_external_feedback() { send('0', '?', '\r'); }
