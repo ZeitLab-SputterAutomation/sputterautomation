@@ -73,8 +73,8 @@ namespace config {
         void save();
 
         // returns the underlying segment
-        std::shared_ptr<Segment> get_segment() { 
-            return m_root;
+        std::shared_ptr<Segment> get_segment(const std::string &name = ""s) { 
+            return m_root->get_segment(name);
         }
 
     private:
