@@ -56,6 +56,26 @@ namespace config {
         return current_segment;
     }
 
+    std::vector<std::pair<std::string, std::string>> Segment::get_all(const std::string &subsegment) {
+        if (!subsegment.empty()) {
+            auto seg = get_segment(subsegment);
+            if (seg) {
+                return seg->get_all();
+            }
+
+            // Unknown subsegment
+            return {};
+        }
+
+        std::vector<std::pair<std::string, std::string>> ret;
+        ret.reserve(m_settings.size());
+        for (const auto &entry : m_settings) {
+            ret.emplace_back(entry.first, entry.second.value);
+        }
+
+        return ret;        
+    }
+
     std::string Segment::do_serialize(const std::string &chain, int tablevel) const {
         std::string s;
 

@@ -97,6 +97,10 @@ namespace config {
             m_settings[key] = Setting{*value_str, comment.value_or(last_comment), get_type<T>()};
         }
 
+        // Returns all settings as a key->value pairs. If subsegment is empty, the settings of this segment are returned,
+        // otherwise those of the subsegment (if there is one with the name). All values are returned as strings.
+        std::vector<std::pair<std::string, std::string>> get_all(const std::string &subsegment = ""s);
+
     private:
         // Recursively call do_serialize for all m_children
         std::string do_serialize(const std::string &chain = ""s, int tablevel = 0) const;
