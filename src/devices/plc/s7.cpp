@@ -38,6 +38,9 @@ namespace PLC {
     S7::S7() {
         m_connector = std::make_unique<EthernetConnector>();
 
+        // Default poll intervall of 1000ms
+        m_poll_timer.setInterval(1000);
+
         QObject::connect(&m_poll_timer, &QTimer::timeout, this, &S7::poll);
     }
 
@@ -60,6 +63,138 @@ namespace PLC {
 
         if (auto interface = settings->get<std::string>("interface")) {
             m_plc_settings.interface = *interface;
+        }
+
+        if (auto pollinterval = settings->get<int>("pollinterval")) {
+            m_poll_timer.setInterval(*pollinterval);
+        }
+
+        // Load flags
+        auto flags = settings->get_all("flags");
+        for (const auto &flag : flags) {
+            auto tokens = *util::split(flag.second, '.', false);
+            if (tokens.size() != 2) {
+                logging::get_log("main")->warn("S7: wrong flag address format encountered, got '{0}'", flag.second);
+                continue;
+            }
+
+            auto addr_high = util::to_type<int>(tokens[0]);
+            auto addr_low = util::to_type<int>(tokens[1]);
+            if (!addr_high || !addr_low) {
+                logging::get_log("main")->warn("S7: non-integer flag address part encountered, got '{0}' for flag '{1}'",
+                                               flag.second, flag.first);
+                continue;
+            }
+
+            m_flag_map[flag.first].address = *addr_high * 8 + *addr_low;
+        }
+
+        // Load inputs
+        auto inputs = settings->get_all("inputs");
+        for (const auto &input : inputs) {
+            auto tokens = *util::split(input.second, '.', false);
+            if (tokens.size() != 2) {
+                logging::get_log("main")->warn("S7: wrong input address format encountered, got '{0}'", input.second);
+                continue;
+            }
+
+            auto addr_high = util::to_type<int>(tokens[0]);
+            auto addr_low = util::to_type<int>(tokens[1]);
+            if (!addr_high || !addr_low) {
+                logging::get_log("main")->warn("S7: non-integer input address part encountered, got '{0}' for input '{1}'",
+                                               input.second, input.first);
+                continue;
+            }
+
+            m_input_map[input.first].address = *addr_high * 8 + *addr_low;
+        }
+
+        // Load outputs
+        auto outputs = settings->get_all("outputs");
+        for (const auto &output : outputs) {
+            auto tokens = *util::split(output.second, '.', false);
+            if (tokens.size() != 2) {
+                logging::get_log("main")->warn("S7: wrong flag address format encountered, got '{0}'", output.second);
+                continue;
+            }
+
+            auto addr_high = util::to_type<int>(tokens[0]);
+            auto addr_low = util::to_type<int>(tokens[1]);
+            if (!addr_high || !addr_low) {
+                logging::get_log("main")->warn("S7: non-integer output address part encountered, got '{0}' for output '{1}'",
+                                               output.second, output.first);
+                continue;
+            }
+
+            m_output_map[output.first].address = *addr_high * 8 + *addr_low;
+        }
+
+        // Load dbwords
+        // We also need to find the highest length (address_data/2 + 1) for all address_db's. We do this by using a map that maps
+        // the address_db to the address_data.
+        std::unordered_map<int, int> addresses;
+
+        auto dbwords = settings->get_all("dbwords");
+        for (const auto &dbword : dbwords) {
+            auto tokens = *util::split(dbword.second, '.', false);
+            if (tokens.size() != 2) {
+                logging::get_log("main")->warn("S7: wrong dbword address format encountered, got '{0}'", dbword.second);
+                continue;
+            }
+
+            auto addr_db = util::to_type<int>(tokens[0]);
+            auto addr_data = util::to_type<int>(tokens[1]);
+            if (!addr_db || !addr_data) {
+                logging::get_log("main")->warn("S7: non-integer dbword address part encountered, got '{0}' for dbword '{1}'",
+                                               dbword.second, dbword.first);
+                continue;
+            }
+
+            m_dbword_map[dbword.first].address_db = *addr_db;
+            m_dbword_map[dbword.first].address_data = *addr_data;
+
+            if (addresses.count(*addr_db) == 0) {
+                addresses[*addr_db] = *addr_data;
+            } else if (addresses[*addr_db] < *addr_data) {
+                addresses[*addr_db] = *addr_data;
+            }
+        }
+
+        for (const auto &entry : addresses) {
+            m_db_datawords.push_back(DBDataword(entry.second));
+        }
+        addresses.clear();
+
+        // Load dbdwords
+        // Same as above
+        auto dbdwords = settings->get_all("dbdwords");
+        for (const auto &dbdword : dbdwords) {
+            auto tokens = *util::split(dbdword.second, '.', false);
+            if (tokens.size() != 2) {
+                logging::get_log("main")->warn("S7: wrong dbdword address format encountered, got '{0}'", dbdword.second);
+                continue;
+            }
+
+            auto addr_db = util::to_type<int>(tokens[0]);
+            auto addr_data = util::to_type<int>(tokens[1]);
+            if (!addr_db || !addr_data) {
+                logging::get_log("main")->warn("S7: non-integer dbdword address part encountered, got '{0}' for dbdword '{1}'",
+                                               dbdword.second, dbdword.first);
+                continue;
+            }
+
+            m_dbdword_map[dbdword.first].address_db = *addr_db;
+            m_dbdword_map[dbdword.first].address_data = *addr_data;
+
+            if (addresses.count(*addr_db) == 0) {
+                addresses[*addr_db] = *addr_data;
+            } else if (addresses[*addr_db] < *addr_data) {
+                addresses[*addr_db] = *addr_data;
+            }
+        }
+
+        for (const auto &entry : addresses) {
+            m_db_datadwords.push_back(DBDatadword(entry.second));
         }
     }
 
@@ -218,7 +353,7 @@ namespace PLC {
         }
 
         if (!poll_flags()) {
-            logging::get_log("main")->warn("S7: unable to poll flags");
+            logging::get_log("main")->warn("S7: unable to set flag {0}: unable to poll flags", name);
             return;
         }
 
@@ -246,7 +381,7 @@ namespace PLC {
         }
 
         if (!poll_outputs()) {
-            logging::get_log("main")->warn("S7: unable to poll outputs");
+            logging::get_log("main")->warn("S7: unable to set output {0}: unable to poll outputs", name);
             return;
         }
 
@@ -437,18 +572,17 @@ namespace PLC {
         for (auto &db : m_db_datawords) {
             bool changed = false;
 
-            std::vector<uint16_t> data(db.second.length);
-            if (auto ret = daveReadBytes(m_plc_connection, daveDB, db.second.address, 0, db.second.length * 2, data.data());
-                ret != daveResOK) {
+            std::vector<uint16_t> data(db.length);
+            if (auto ret = daveReadBytes(m_plc_connection, daveDB, db.address, 0, db.length * 2, data.data()); ret != daveResOK) {
                 logging::get_log("main")->error("S7: polling dbwords failed with error {0}", std::string(daveStrerror(ret)));
                 return;
             }
 
             // Search for changed data
-            for (size_t i = 0; i < db.second.length; i++) {
+            for (size_t i = 0; i < db.length; i++) {
                 data[i] = util::convert_endian(data[i]);
-                if (data[i] != db.second.data[i]) {
-                    db.second.data[i] = data[i];
+                if (data[i] != db.data[i]) {
+                    db.data[i] = data[i];
                     changed = true;
                 }
             }
@@ -456,7 +590,7 @@ namespace PLC {
             if (changed) {
                 // Search for the corresponding entry in m_dbword_map and change the value
                 for (auto &dbmap : m_dbword_map) {
-                    if (dbmap.second.address_db == db.second.address) {
+                    if (dbmap.second.address_db == db.address) {
                         int address_data = dbmap.second.address_data / 2;
                         if (dbmap.second.data != data[address_data]) {
                             dbmap.second.data = data[address_data];
@@ -474,18 +608,17 @@ namespace PLC {
         for (auto &db : m_db_datadwords) {
             bool changed = false;
 
-            std::vector<uint32_t> data(db.second.length);
-            if (auto ret = daveReadBytes(m_plc_connection, daveDB, db.second.address, 0, db.second.length * 4, data.data());
-                ret != daveResOK) {
+            std::vector<uint32_t> data(db.length);
+            if (auto ret = daveReadBytes(m_plc_connection, daveDB, db.address, 0, db.length * 4, data.data()); ret != daveResOK) {
                 logging::get_log("main")->error("S7: polling dbdwords failed with error {0}", std::string(daveStrerror(ret)));
                 return;
             }
 
             // Search for changed data
-            for (size_t i = 0; i < db.second.length; i++) {
+            for (size_t i = 0; i < db.length; i++) {
                 data[i] = util::convert_endian(data[i]);
-                if (data[i] != db.second.data[i]) {
-                    db.second.data[i] = data[i];
+                if (data[i] != db.data[i]) {
+                    db.data[i] = data[i];
                     changed = true;
                 }
             }
@@ -493,7 +626,7 @@ namespace PLC {
             if (changed) {
                 // Search for the corresponding entry in m_dbdword_map and change the value
                 for (auto &dbmap : m_dbdword_map) {
-                    if (dbmap.second.address_db == db.second.address) {
+                    if (dbmap.second.address_db == db.address) {
                         int address_data = dbmap.second.address_data / 4;
                         if (dbmap.second.data != data[address_data]) {
                             dbmap.second.data = data[address_data];

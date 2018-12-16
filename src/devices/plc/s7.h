@@ -127,8 +127,8 @@ namespace PLC {
         std::unordered_map<std::string, State> m_input_map;
         std::unordered_map<std::string, State> m_output_map;
 
-        std::unordered_map<std::string, DBDataword> m_db_datawords;
-        std::unordered_map<std::string, DBDatadword> m_db_datadwords;
+        std::vector<DBDataword> m_db_datawords;
+        std::vector<DBDatadword> m_db_datadwords;
         std::unordered_map<std::string, DBword> m_dbword_map;
         std::unordered_map<std::string, DBdword> m_dbdword_map;
 
