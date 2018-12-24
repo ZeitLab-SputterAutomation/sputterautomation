@@ -211,19 +211,19 @@ TEST(TypeConversion, ToType) {
     EXPECT_EQ(util::to_type<int>("-10000000000000000000000000"), std::nullopt);
 
     // convert string to integers
-    EXPECT_EQ(*util::to_type<int>("1"), 1);
-    EXPECT_EQ(*util::to_type<int>("-1"), -1);
-    EXPECT_EQ(*util::to_type<int>("016"), 14);
-    EXPECT_EQ(*util::to_type<int>("-016"), -14);
-    EXPECT_EQ(*util::to_type<int>("0x16"), 22);
-    EXPECT_EQ(*util::to_type<int>("-0x16"), -22);
-    EXPECT_EQ(*util::to_type<int>("1.2345"), 1);
+    EXPECT_EQ(util::to_type<int>("1").value(), 1);
+    EXPECT_EQ(util::to_type<int>("-1").value(), -1);
+    EXPECT_EQ(util::to_type<int>("016").value(), 14);
+    EXPECT_EQ(util::to_type<int>("-016").value(), -14);
+    EXPECT_EQ(util::to_type<int>("0x16").value(), 22);
+    EXPECT_EQ(util::to_type<int>("-0x16").value(), -22);
+    EXPECT_EQ(util::to_type<int>("1.2345").value(), 1);
 
     // convert string to floating point types
-    EXPECT_DOUBLE_EQ(*util::to_type<float>("1.2345"), 1.2345f);
-    EXPECT_DOUBLE_EQ(*util::to_type<float>("-1.2345"), -1.2345f);
-    EXPECT_DOUBLE_EQ(*util::to_type<double>("1.2345"), 1.2345);
-    EXPECT_DOUBLE_EQ(*util::to_type<double>("-1.2345"), -1.2345);
+    EXPECT_DOUBLE_EQ(util::to_type<float>("1.2345").value(), 1.2345f);
+    EXPECT_DOUBLE_EQ(util::to_type<float>("-1.2345").value(), -1.2345f);
+    EXPECT_DOUBLE_EQ(util::to_type<double>("1.2345").value(), 1.2345);
+    EXPECT_DOUBLE_EQ(util::to_type<double>("-1.2345").value(), -1.2345);
 
     // convert integers to strings
     EXPECT_STREQ(util::to_type<std::string>(1)->c_str(), "1");
@@ -231,11 +231,11 @@ TEST(TypeConversion, ToType) {
 
     // since float to string may add zeroes to the output we test this by converting back using lexial_cast
     {
-        float f = boost::lexical_cast<float>(*util::to_type<std::string>(1.2345f));
+        float f = boost::lexical_cast<float>(util::to_type<std::string>(1.2345f).value());
         EXPECT_DOUBLE_EQ(f, 1.2345f);
     }
     {
-        float f = boost::lexical_cast<float>(*util::to_type<std::string>(-1.2345f));
+        float f = boost::lexical_cast<float>(util::to_type<std::string>(-1.2345f).value());
         EXPECT_DOUBLE_EQ(f, -1.2345f);
     }
 
@@ -245,13 +245,13 @@ TEST(TypeConversion, ToType) {
 
     // conversion between enum and int
     Enum e = Enum::A;
-    EXPECT_EQ(*util::to_type<int>(e), 1);
-    e = *util::to_type<Enum>(2);
+    EXPECT_EQ(util::to_type<int>(e).value(), 1);
+    e = util::to_type<Enum>(2).value();
     EXPECT_TRUE(e == Enum::B);
 
     // conversion between enum class and int
     EnumClass ec = EnumClass::X;
-    EXPECT_EQ(*util::to_type<int>(ec), 10);
-    ec = *util::to_type<EnumClass>(20);
+    EXPECT_EQ(util::to_type<int>(ec).value(), 10);
+    ec = util::to_type<EnumClass>(20).value();
     EXPECT_TRUE(ec == EnumClass::Y);
 }
