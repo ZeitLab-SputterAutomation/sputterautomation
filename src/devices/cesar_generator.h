@@ -42,10 +42,10 @@ private:
     // Queue a command to be sent to the device. If no other commands are queued it will be sent immediately. Otherwise
     // the next command is sent when a valid reply was received.
     void queue_command(QByteArray command);
-    /*
+    
     // Since QByteArray does not provide a constructor taking an initializer_list, we use this little templated
     // queue_command to simplify the construction of packages.
-    // This overload takes any number of parameters and packs them in one QByteArray, which is passed on to queue_command.*/
+    // This overload takes any number of parameters and packs them in one QByteArray, which is passed on to queue_command.
     template <typename... Ts>
     constexpr void queue_command(const Ts... args) {
         // static_assert(util::all_true<std::is_convertible_v<Ts, uint8_t>...>::value,

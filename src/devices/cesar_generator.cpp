@@ -135,23 +135,24 @@ void CesarGenerator::queue_command(QByteArray command) {
 
     std::scoped_lock<std::mutex> lock(m_command_mutex);
 
+    // Build the outgoing packet
+    int data_len = command.length();
+
+    if (data_len > 6) {
+        command.insert(1, static_cast<char>(data_len));
+        data_len = 7;
+    }
+    command.prepend((m_address << 3) & 0xF8 | static_cast<char>(data_len));
+    command.append('\0');
+
+    // Checksum
+    command.append(command[0]);
+    data_len = command.length();
+    for (int i = 1; i < data_len - 1; i++) {
+        command[data_len - 1] = command[data_len - 1] ^ command[i];
+    }
+
     if (m_command_queue.empty()) {
-        // Build the outgoing packet
-        int data_len = command.length() - 1;
-
-        if (data_len > 6) {
-            command.insert(1, static_cast<char>(data_len));
-            data_len = 7;
-        }
-        command.prepend((m_address << 3) & 0xF8 | static_cast<char>(data_len));
-        command.append('\0');
-
-        // Checksum
-        data_len = command.length();
-        for (int i = 0; i < data_len; i++) {
-            command[data_len - 1] = command[data_len - 1] ^ command[i];
-        }
-
         send(command);
     }
 
