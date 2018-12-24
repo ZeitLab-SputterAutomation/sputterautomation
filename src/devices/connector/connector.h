@@ -12,7 +12,7 @@ inline std::unique_ptr<BaseConnector> make_connector(std::string_view type) {
         return std::make_unique<EthernetConnector>();
     }
 
-    logging::get_log("main")->warn("make_connector: unknown type {0}", type);
+    logging::get_log("main")->warn("make_connector: unknown type '{0}'", type);
 
     return nullptr;
 }

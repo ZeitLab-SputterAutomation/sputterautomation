@@ -4,6 +4,8 @@ KJLGenerator::KJLGenerator(std::unique_ptr<BaseConnector> &&connector) : RFGener
     if (m_connector) {
         QObject::connect(m_connector.get(), &BaseConnector::data_received, this, &KJLGenerator::handle_data_received);
     }
+
+    logging::get_log("main")->debug("KJLGenerator: device #{0}", m_id);
 }
 
 void KJLGenerator::set_connector(std::unique_ptr<BaseConnector> &&connector) {
@@ -15,16 +17,43 @@ void KJLGenerator::set_connector(std::unique_ptr<BaseConnector> &&connector) {
 }
 
 void KJLGenerator::init(std::shared_ptr<config::Segment> settings) {
+    logging::get_log("main")->debug("KJLGenerator is Device #{0}", m_id);
+
+    auto conn_seg = settings->get_segment("connector");
+    if (!conn_seg) {
+        return;
+    }
+
+    if (!m_connector) {
+        // Connector not yet loaded, try to create it from the settings
+        auto conn_type = conn_seg->get<std::string>("type");
+        if (!conn_type) {
+            logging::get_log("main")->warn(
+                "KJLGenerator: init called but connector was not set up, unable to create one from the settings provided");
+            return;
+        }
+        auto conn = make_connector(*conn_type);
+
+        if (!conn) {
+            logging::get_log("main")->warn(
+                "KJLGenerator: init called but connector was not set up, unable to create one from the settings provided");
+            return;
+        }
+
+        set_connector(std::move(conn));
+    }
+
     if (!m_connector) {
         logging::get_log("main")->warn(
             "KJLGenerator: init called but no connector was set up. Call set_connector with a valid connector first.");
         return;
     }
-
+    
     m_connector->init(settings);
     if (!m_connector->connect()) {
         logging::get_log("main")->error(
-            "KJLGenerator: an error occured while trying to connect to the generator. Connector info:\n  {0}", m_connector->info());
+            "KJLGenerator: an error occured while trying to connect to the generator. Connector info:\n  {0}",
+            m_connector->info());
     } else {
         logging::get_log("main")->debug("KJLGenerator: connected. Connector info:\n  {0}", m_connector->info());
     }
@@ -94,6 +123,8 @@ void KJLGenerator::query_status() { send('Q', '\r'); }
 void KJLGenerator::handle_data_received(const QByteArray &data) {
     // A buffer for incoming messages so we don't keep the mutex locked for actual handling of the packets
     std::vector<QByteArray> replies;
+
+    logging::get_log("main")->debug("KJLGenerator: handle_data_received got '{0}'", data.toStdString());
 
     // TODO: keep track of sent commands to identify lost packets
 

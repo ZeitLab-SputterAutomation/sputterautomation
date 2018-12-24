@@ -17,6 +17,30 @@ void HofiSwitch::set_connector(std::unique_ptr<BaseConnector> &&connector) {
 }
 
 void HofiSwitch::init(std::shared_ptr<config::Segment> settings) {
+    auto conn_seg = settings->get_segment("connector");
+    if (!conn_seg) {
+        return;
+    }
+
+    if (!m_connector) {
+        // Connector not yet loaded, try to create it from the settings
+        auto conn_type = conn_seg->get<std::string>("type");
+        if (!conn_type) {
+            logging::get_log("main")->warn(
+                "HofiSwitch: init called but connector was not set up, unable to create one from the settings provided");
+            return;
+        }
+        auto conn = make_connector(*conn_type);
+
+        if (!conn) {
+            logging::get_log("main")->warn(
+                "HofiSwitch: init called but connector was not set up, unable to create one from the settings provided");
+            return;
+        }
+
+        set_connector(std::move(conn));
+    }
+
     if (!m_connector) {
         logging::get_log("main")->warn(
             "HofiSwitch: init called but no connector was set up. Call set_connector with a valid connector first.");
@@ -26,10 +50,10 @@ void HofiSwitch::init(std::shared_ptr<config::Segment> settings) {
     m_connector->init(settings);
     if (!m_connector->connect()) {
         logging::get_log("main")->error(
-            "HofiSwitch: an error occured while trying to connect to the switch. Connector info:\n{0}", m_connector->info());
+            "HofiSwitch: an error occured while trying to connect to the switch. Connector info:\n  {0}", m_connector->info());
     } else {
-        logging::get_log("main")->debug("HofiSwitch: connected. Connector info:\n{0}", m_connector->info());
-        
+        logging::get_log("main")->debug("HofiSwitch: connected. Connector info:\n  {0}", m_connector->info());
+
         // query current status
         m_connector->write(QByteArray("HOFISTATU"));
     }
@@ -38,6 +62,12 @@ void HofiSwitch::init(std::shared_ptr<config::Segment> settings) {
 void HofiSwitch::set_port(int8_t port) {
     if (port < 1 || port > 5) {
         logging::get_log("main")->error("HofiSwitch: port outside range [1, 5], got {0}", port);
+        return;
+    }
+
+    if (!m_connector) {
+        logging::get_log("main")->warn(
+            "HofiSwitch: set_port called but no connector was set up. Call set_connector with a valid connector first.");
         return;
     }
 

@@ -21,23 +21,44 @@ void CesarGenerator::set_connector(std::unique_ptr<BaseConnector> &&connector) {
 void CesarGenerator::init(std::shared_ptr<config::Segment> settings) {
     logging::get_log("main")->debug("CesarGenerator is Device #{0}", m_id);
 
-    if (!m_connector) {
-        logging::get_log("main")->warn(
-            "CesarGenerator: init called but no connector was set up. Call set_connector with a valid connector first.");
+    if (auto address = settings->get<int>("address")) {
+        m_address = *address;
+    }
+
+    auto conn_seg = settings->get_segment("connector");
+    if (!conn_seg) {
         return;
     }
 
-    m_connector->init(settings);
+    if (!m_connector) {
+        // Connector not yet loaded, try to create it from the settings
+        auto conn_type = conn_seg->get<std::string>("type");
+        if (!conn_type) {
+            logging::get_log("main")->warn(
+                "KJLGenerator: init called but connector was not set up, unable to create one from the settings provided");
+            return;
+        }
+        auto conn = make_connector(*conn_type);
+
+        if (!conn) {
+            logging::get_log("main")->warn(
+                "CesarGenerator: init called but connector was not set up, unable to create one from the settings provided");
+            return;
+        }
+
+        set_connector(std::move(conn));
+    }
+
+    // connector was set up, init it
+    m_connector->init(conn_seg);
+
+    // try to connect to it
     if (!m_connector->connect()) {
         logging::get_log("main")->error(
             "CesarGenerator: an error occured while trying to connect to the generator. Connector info:\n  {0}",
             m_connector->info());
     } else {
         logging::get_log("main")->debug("CesarGenerator: connected. Connector info:\n  {0}", m_connector->info());
-    }
-
-    if (auto address = settings->get<int>("address")) {
-        m_address = *address;
     }
 }
 
