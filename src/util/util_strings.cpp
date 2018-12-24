@@ -69,4 +69,20 @@ namespace util {
     void trim_all(std::string &s, std::function<bool(unsigned char)> pred) {
         s.erase(std::remove_if(s.begin(), s.end(), pred), s.end());
     }
+
+    bool ends_with(const std::string &s, std::string_view ending) {
+        // is s long enough to hold ending?
+        if (s.length() >= ending.length()) {
+            return s.compare(s.length() - ending.length(), ending.length(), ending) == 0;
+        }
+
+        return false;
+    }
+
+    std::string get_after_delimiter(const std::string &s, char delim) {
+        auto pos = s.find(delim);
+        if (pos == std::string::npos) return ""s;
+
+        return s.substr(pos + 1);
+    }
 }  // namespace util

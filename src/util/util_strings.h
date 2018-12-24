@@ -25,6 +25,12 @@ namespace util {
     // Removes all characters from the given string where pred returns true
     void trim_all(std::string &s, std::function<bool(unsigned char)> pred);
 
+    // Returns true if s ends with ending and false otherwise. Replace with std::basic_string::ends_with once C++20 is available.
+    bool ends_with(const std::string &s, std::string_view ending);
+
+    // Returns the string contents of s after the delimiter delim. If delim is not included in s, an empty string is returned.
+    std::string get_after_delimiter(const std::string &s, char delim);
+
     // Splits a string at a given delimiter. The resulting tokens are saved in the given output container. If
     // allow_empty is false, if an empty token is encountered it will be skipped and split returns false. Otherwise
     // it returns true. If the string does not contain the delimiter, the whole string is returned.
