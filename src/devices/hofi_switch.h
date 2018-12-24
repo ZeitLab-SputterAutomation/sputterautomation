@@ -6,6 +6,7 @@
 class HofiSwitch : public RFSwitch {
     Q_OBJECT
 public:
+    HofiSwitch() = default;
     HofiSwitch(std::unique_ptr<BaseConnector> &&connector);
     ~HofiSwitch() = default;
 
