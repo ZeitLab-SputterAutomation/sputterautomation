@@ -185,8 +185,14 @@ void KJLGenerator::handle_reply(const QByteArray &data) {
         //     c is reflected power in Watts
         //     d is maximum power in Watts
         //     X holds additional information
-        auto tokens = *util::split(data.mid(2, second_index - first_index - 1).toStdString(), ' ');
-        if (tokens.empty()) {
+        auto tokens = util::split(data.mid(2, second_index - first_index - 1).toStdString(), ' ');
+        if (!tokens) {
+            logging::get_log("main")->warn("KJLGenerator: received corrupted reply to 'Q' (QueryStatus) command, got '{0}' (hex)",
+                                           data.toHex().toStdString());
+            return;
+        }
+
+        if (tokens->empty()) {
             logging::get_log("main")->warn("KJLGenerator: received corrupted reply to 'Q' (QueryStatus) command, got '{0}' (hex)",
                                            data.toHex().toStdString());
             return;
@@ -194,9 +200,15 @@ void KJLGenerator::handle_reply(const QByteArray &data) {
 
         std::scoped_lock<std::mutex> lock(m_parameter_mutex);
 
-        m_generator_parameters.setpoint = *util::to_type<int>(tokens[1]);
-        m_generator_parameters.forward_power = *util::to_type<int>(tokens[2]);
-        m_generator_parameters.reflected_power = *util::to_type<int>(tokens[3]);
+        if (auto setpoint = util::to_type<int>((*tokens)[1])) {
+            m_generator_parameters.setpoint = *setpoint;
+        }
+        if (auto forward_power = util::to_type<int>((*tokens)[2])) {
+            m_generator_parameters.forward_power = *forward_power;
+        }
+        if (auto reflected_power = util::to_type<int>((*tokens)[3])) {
+            m_generator_parameters.reflected_power = *reflected_power;
+        }
 
         logging::get_log("main")->debug(
             "KJLGenerator: reflected power returned {0} (setpoint), {1} (forward power}, {2} (reflected power)",

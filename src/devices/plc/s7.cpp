@@ -72,14 +72,14 @@ namespace PLC {
         // Load flags
         auto flags = settings->get_all("flags");
         for (const auto &flag : flags) {
-            auto tokens = *util::split(flag.second, '.', false);
-            if (tokens.size() != 2) {
+            auto tokens = util::split(flag.second, '.', false);
+            if (!tokens || tokens->size() != 2) {
                 logging::get_log("main")->warn("S7: wrong flag address format encountered, got '{0}'", flag.second);
                 continue;
             }
 
-            auto addr_high = util::to_type<int>(tokens[0]);
-            auto addr_low = util::to_type<int>(tokens[1]);
+            auto addr_high = util::to_type<int>((*tokens)[0]);
+            auto addr_low = util::to_type<int>((*tokens)[1]);
             if (!addr_high || !addr_low) {
                 logging::get_log("main")->warn("S7: non-integer flag address part encountered, got '{0}' for flag '{1}'",
                                                flag.second, flag.first);
@@ -92,14 +92,14 @@ namespace PLC {
         // Load inputs
         auto inputs = settings->get_all("inputs");
         for (const auto &input : inputs) {
-            auto tokens = *util::split(input.second, '.', false);
-            if (tokens.size() != 2) {
+            auto tokens = util::split(input.second, '.', false);
+            if (!tokens || tokens->size() != 2) {
                 logging::get_log("main")->warn("S7: wrong input address format encountered, got '{0}'", input.second);
                 continue;
             }
 
-            auto addr_high = util::to_type<int>(tokens[0]);
-            auto addr_low = util::to_type<int>(tokens[1]);
+            auto addr_high = util::to_type<int>((*tokens)[0]);
+            auto addr_low = util::to_type<int>((*tokens)[1]);
             if (!addr_high || !addr_low) {
                 logging::get_log("main")->warn("S7: non-integer input address part encountered, got '{0}' for input '{1}'",
                                                input.second, input.first);
@@ -112,14 +112,14 @@ namespace PLC {
         // Load outputs
         auto outputs = settings->get_all("outputs");
         for (const auto &output : outputs) {
-            auto tokens = *util::split(output.second, '.', false);
-            if (tokens.size() != 2) {
+            auto tokens = util::split(output.second, '.', false);
+            if (!tokens || tokens->size() != 2) {
                 logging::get_log("main")->warn("S7: wrong flag address format encountered, got '{0}'", output.second);
                 continue;
             }
 
-            auto addr_high = util::to_type<int>(tokens[0]);
-            auto addr_low = util::to_type<int>(tokens[1]);
+            auto addr_high = util::to_type<int>((*tokens)[0]);
+            auto addr_low = util::to_type<int>((*tokens)[1]);
             if (!addr_high || !addr_low) {
                 logging::get_log("main")->warn("S7: non-integer output address part encountered, got '{0}' for output '{1}'",
                                                output.second, output.first);
@@ -136,14 +136,14 @@ namespace PLC {
 
         auto dbwords = settings->get_all("dbwords");
         for (const auto &dbword : dbwords) {
-            auto tokens = *util::split(dbword.second, '.', false);
-            if (tokens.size() != 2) {
+            auto tokens = util::split(dbword.second, '.', false);
+            if (!!tokens || tokens->size() != 2) {
                 logging::get_log("main")->warn("S7: wrong dbword address format encountered, got '{0}'", dbword.second);
                 continue;
             }
 
-            auto addr_db = util::to_type<int>(tokens[0]);
-            auto addr_data = util::to_type<int>(tokens[1]);
+            auto addr_db = util::to_type<int>((*tokens)[0]);
+            auto addr_data = util::to_type<int>((*tokens)[1]);
             if (!addr_db || !addr_data) {
                 logging::get_log("main")->warn("S7: non-integer dbword address part encountered, got '{0}' for dbword '{1}'",
                                                dbword.second, dbword.first);
@@ -169,14 +169,14 @@ namespace PLC {
         // Same as above
         auto dbdwords = settings->get_all("dbdwords");
         for (const auto &dbdword : dbdwords) {
-            auto tokens = *util::split(dbdword.second, '.', false);
-            if (tokens.size() != 2) {
+            auto tokens = util::split(dbdword.second, '.', false);
+            if (!tokens || tokens->size() != 2) {
                 logging::get_log("main")->warn("S7: wrong dbdword address format encountered, got '{0}'", dbdword.second);
                 continue;
             }
 
-            auto addr_db = util::to_type<int>(tokens[0]);
-            auto addr_data = util::to_type<int>(tokens[1]);
+            auto addr_db = util::to_type<int>((*tokens)[0]);
+            auto addr_data = util::to_type<int>((*tokens)[1]);
             if (!addr_db || !addr_data) {
                 logging::get_log("main")->warn("S7: non-integer dbdword address part encountered, got '{0}' for dbdword '{1}'",
                                                dbdword.second, dbdword.first);
