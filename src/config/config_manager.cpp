@@ -26,16 +26,20 @@ namespace config {
         m_configs.clear();
     }
 
-    bool ConfigManager::load(const std::string &file, const std::string &identifier) {
-        std::scoped_lock<std::mutex> lock{m_mutex};
-
-        std::ifstream input(file);
+    bool ConfigManager::load(const std::string &filename, const std::string &identifier) {
+        std::ifstream input{filename};
         if (!input.is_open()) {
-            m_log->error("ConfigManager::load(): unable to open config file {0}", file);
+            m_log->error("ConfigManager::load(): unable to open config file {0}", filename);
             return false;
         }
 
-        auto conf = std::make_shared<ConfigFile>(file);
+        return load(input, identifier, filename);
+    }
+
+    bool ConfigManager::load(std::istream &input, const std::string &identifier, const std::string &path) {
+        std::scoped_lock<std::mutex> lock{m_mutex};
+
+        auto conf = std::make_shared<ConfigFile>(path);
         if (!parse(input, conf)) {
             return false;
         }

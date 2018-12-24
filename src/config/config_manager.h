@@ -31,7 +31,8 @@ namespace config {
         //void create_config();
         //void save_config();
 
-        bool load(const std::string &file, const std::string &identifier);
+        bool load(const std::string &filename, const std::string &identifier);
+        bool load(std::istream &input, const std::string &identifier, const std::string &path = "");
 
     private:
         bool parse(std::istream &stream, std::shared_ptr<ConfigFile> conf);
