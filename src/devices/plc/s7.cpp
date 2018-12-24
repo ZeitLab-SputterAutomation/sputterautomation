@@ -161,7 +161,7 @@ namespace PLC {
         }
 
         for (const auto &entry : addresses) {
-            m_db_datawords.push_back(DBDataword(entry.second));
+            m_db_datawords.push_back(DBDataword(entry.first, entry.second / 2 + 1));
         }
         addresses.clear();
 
@@ -194,7 +194,7 @@ namespace PLC {
         }
 
         for (const auto &entry : addresses) {
-            m_db_datadwords.push_back(DBDatadword(entry.second));
+            m_db_datadwords.push_back(DBDatadword(entry.first, entry.second / 4 + 1));
         }
     }
 

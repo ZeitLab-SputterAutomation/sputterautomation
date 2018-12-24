@@ -22,7 +22,7 @@ namespace PLC {
     // This holds the data of multiple data blocks.
     template <typename T>
     struct DBVector {
-        DBVector(int addr) : data(addr / 2 + 1), length{addr / 2 + 1}, address{addr} {}
+        DBVector(int addr, int len) : data(len), length{len}, address{addr} {}
         DBVector() {}
 
         std::vector<T> data;
