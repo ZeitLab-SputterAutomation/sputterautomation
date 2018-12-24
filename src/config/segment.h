@@ -40,6 +40,8 @@ namespace config {
         std::string get_comment() { return m_comment; }
         void set_comment(const std::string &comment) { m_comment = comment; }
 
+        std::string get_name() { return m_name; }
+
         template <typename T>
         std::optional<T> get(const std::string &key) const {
             if (key.empty()) {
@@ -100,6 +102,10 @@ namespace config {
         // Returns all settings as a key->value pairs. If subsegment is empty, the settings of this segment are returned,
         // otherwise those of the subsegment (if there is one with the name). All values are returned as strings.
         std::vector<std::pair<std::string, std::string>> get_all(const std::string &subsegment = ""s);
+
+        // Returns all child segments. If subsegment is empty, the children of this segment are returned, otherwise those of the
+        // subsegment (if there is one with the name).
+        std::vector<std::shared_ptr<Segment>> get_children(const std::string &subsegment = ""s);
 
     private:
         // Recursively call do_serialize for all m_children

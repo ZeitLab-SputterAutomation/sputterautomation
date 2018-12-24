@@ -76,6 +76,27 @@ namespace config {
         return ret;        
     }
 
+    std::vector<std::shared_ptr<Segment>> Segment::get_children(const std::string & subsegment)
+    {
+        if (!subsegment.empty()) {
+            auto seg = get_segment(subsegment);
+            if (seg) {
+                return seg->get_children();
+            }
+
+            // Unknown subsegment
+            return {};
+        }
+
+        std::vector<std::shared_ptr<Segment>> ret;
+        ret.reserve(m_children.size());
+        for (const auto &entry : m_children) {
+            ret.emplace_back(entry.second);
+        }
+
+        return ret;
+    }
+
     std::string Segment::do_serialize(const std::string &chain, int tablevel) const {
         std::string s;
 
